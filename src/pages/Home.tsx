@@ -1,10 +1,9 @@
+import React, { useRef, useState } from "react";
 import {
-  IonButton,
   IonCol,
   IonContent,
   IonGrid,
   IonHeader,
-  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -13,10 +12,32 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { calculatorOutline, refreshOutline } from "ionicons/icons";
+import BmiButtons from "../components/BmiButtons";
+import BMIResult from "../components/BmiResult";
 import "./Home.css";
 
 const Home: React.FC = () => {
+  const [calculatedBMI, setCalculatedBMI] = useState<number>();
+
+  const weightInputRef = useRef<HTMLIonInputElement>(null);
+  const heightInputRef = useRef<HTMLIonInputElement>(null);
+
+  const calculateBMI = () => {
+    const enteredWeight = weightInputRef.current!.value;
+    const enteredHeight = heightInputRef.current!.value;
+
+    if (!enteredHeight || !enteredWeight) {
+      return;
+    }
+
+    const bmi = +enteredWeight / (+enteredHeight * +enteredHeight);
+    console.log(bmi);
+    setCalculatedBMI(bmi);
+  };
+  const resetInputs = () => {
+    weightInputRef.current!.value = "";
+    heightInputRef.current!.value = "";
+  };
   return (
     <IonPage>
       <IonHeader>
@@ -30,7 +51,7 @@ const Home: React.FC = () => {
             <IonCol>
               <IonItem>
                 <IonLabel position="floating">Your Height</IonLabel>
-                <IonInput />
+                <IonInput ref={heightInputRef} />
               </IonItem>
             </IonCol>
           </IonRow>
@@ -38,27 +59,12 @@ const Home: React.FC = () => {
             <IonCol>
               <IonItem>
                 <IonLabel position="floating">Your Weight</IonLabel>
-                <IonInput />
+                <IonInput ref={weightInputRef} />
               </IonItem>
             </IonCol>
           </IonRow>
-          <IonRow>
-            <IonCol>
-              <IonButton fill="solid" className="ion-text-left">
-                <IonIcon icon={calculatorOutline} slot="start" />
-                Calculate
-              </IonButton>
-              <IonButton fill="outline" className="ion-text-right">
-                <IonIcon icon={refreshOutline} slot="start" />
-                Reset
-              </IonButton>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol>
-              <h2>Result</h2>
-            </IonCol>
-          </IonRow>
+          <BmiButtons onCalculate={calculateBMI} onReset={resetInputs} />
+          {calculatedBMI ? <BMIResult result={calculatedBMI} /> : null}
         </IonGrid>
       </IonContent>
     </IonPage>
