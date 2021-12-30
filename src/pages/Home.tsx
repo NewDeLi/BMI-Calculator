@@ -15,11 +15,13 @@ import {
 } from "@ionic/react";
 import BmiButtons from "../components/BmiButtons";
 import BMIResult from "../components/BmiResult";
+import InputsSegment from "../components/InputsSegment";
 import "./Home.css";
 
 const Home: React.FC = () => {
   const [calculatedBMI, setCalculatedBMI] = useState<number>();
   const [error, setError] = useState<string>();
+  const [units, setUnits] = useState<"german" | "english">("german");
 
   const weightInputRef = useRef<HTMLIonInputElement>(null);
   const heightInputRef = useRef<HTMLIonInputElement>(null);
@@ -37,9 +39,14 @@ const Home: React.FC = () => {
       setError("Please enter a valid (positive) number");
       return;
     }
+    const weightFactor = units === "english" ? 2.2 : 1;
+    const heightFactor = units === "english" ? 3.28 : 1;
 
-    const bmi = +enteredWeight / (+enteredHeight * +enteredHeight);
-    console.log(bmi);
+    const weight = +enteredWeight / weightFactor;
+    const height = +enteredHeight / heightFactor;
+
+    const bmi = +weight / (+height * +height);
+
     setCalculatedBMI(bmi);
   };
   const resetInputs = () => {
@@ -49,6 +56,10 @@ const Home: React.FC = () => {
 
   const clearError = () => {
     setError("");
+  };
+
+  const selectedUnitHandler = (selectedValue: "german" | "english") => {
+    setUnits(selectedValue);
   };
   return (
     <>
@@ -67,8 +78,18 @@ const Home: React.FC = () => {
           <IonGrid className="ion-text-center ion-margin-top">
             <IonRow>
               <IonCol>
+                <InputsSegment
+                  selectedValue={units}
+                  onSelectedValue={selectedUnitHandler}
+                />
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
                 <IonItem>
-                  <IonLabel position="floating">Your Height</IonLabel>
+                  <IonLabel position="floating">
+                    Your Height({units === "german" ? "meters" : "feet"})
+                  </IonLabel>
                   <IonInput type="number" ref={heightInputRef} />
                 </IonItem>
               </IonCol>
@@ -76,7 +97,9 @@ const Home: React.FC = () => {
             <IonRow>
               <IonCol>
                 <IonItem>
-                  <IonLabel position="floating">Your Weight</IonLabel>
+                  <IonLabel position="floating">
+                    Your Weight({units === "german" ? "kg" : "lbs"})
+                  </IonLabel>
                   <IonInput type="number" ref={weightInputRef} />
                 </IonItem>
               </IonCol>
